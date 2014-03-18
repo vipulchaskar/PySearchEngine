@@ -35,17 +35,41 @@ def get_page(url):
     page = html.read()
     return str(page)
 
+def add_page_to_index(index,url,content):
+	words = content.split()
+	for word in words:
+		add_to_index(index,word,url)
+
+def add_to_index(index,keyword,url):
+	if keyword in index:
+		index[keyword].append(url)
+	else:
+		index[keyword] = [url]
+
 def crawl_web(seed):
     tocrawl = [seed]
     crawled = []
+    index = {}
     while tocrawl:
         page = tocrawl.pop()
         if page not in crawled:
-            union(tocrawl, get_all_links(get_page(page)))
+            content = get_page(page)
+            add_page_to_index(index,page,content)
+            union(tocrawl, get_all_links(content))
             crawled.append(page)
-    return crawled
+    #return crawled
+    return index
 
-print(crawl_web(sys.argv[1]))
+def lookup(index,word):
+	if word in index:
+		return index[word]
+	else:
+		return None
+
+index = crawl_web('http://www.udacity.com/cs101x/index.html')
+#print(index)
+print(index['a'])
+#print(crawl_web(sys.argv[1]))
 
 #print_all_links(get_page(sys.argv[1]))
 #'http://www.udacity.com/cs101x/index.html'
